@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1e604b">
+  <meta name="description" content="A Hangaroo-inspired pharmacy quiz. Ten questions, five lives, and a little bounce.">
+  <title>QuizRoo · Pharmacy review</title>
+  <link rel="icon" type="image/svg+xml" href="./favicon.svg">
+  <link rel="stylesheet" href="./styles.css">
+  <script defer src="./questions.js"></script>
+  <script defer src="./engine.js"></script>
+  <script defer src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to game</a>
+  <svg class="svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M4 12h15m-6-6 6 6-6 6"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.2 4.8a5.5 5.5 0 0 0-7.8 0L12 5.2l-.4-.4a5.5 5.5 0 0 0-7.8 7.8L12 21l8.2-8.4a5.5 5.5 0 0 0 0-7.8Z"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+      <symbol id="i-cross" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+      <symbol id="i-sound" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm4 4a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></symbol>
+      <symbol id="i-muted" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm5 5 6 6m0-6-6 6"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 5v15M3 4c4-1 6 0 9 2 3-2 5-3 9-2v14c-4-1-6 0-9 2-3-2-5-3-9-2V4Z"/></symbol>
+      <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M5 8a8 8 0 0 1 13-3l2 3M4 16l2 3a8 8 0 0 0 13-3"/></symbol>
+    </defs>
+  </svg>
+  <div class="app-shell">
+    <header class="site-header">
+      <a class="brand" href="./index.html" aria-label="QuizRoo home"><span class="brand-mark">q<span>•</span></span>QuizRoo<span class="brand-period">.</span></a>
+      <div class="header-right"><span class="course-label">PHARMACY REVIEW</span><button id="sound-toggle" class="icon-button" type="button" aria-label="Turn sound on" aria-pressed="false" title="Turn sound on"><svg class="icon"><use href="#i-muted"/></svg></button></div>
+    </header>
+    <main id="main" tabindex="-1">
+      <noscript><p class="error-note">Enable JavaScript to play QuizRoo.</p></noscript>
+      <section id="home-screen" class="home-grid" aria-labelledby="home-title">
+        <div class="home-copy">
+          <div class="eyebrow"><span class="tiny-dot"></span> A SMALL CHALLENGE. A SMARTER YOU.</div>
+          <h1 id="home-title">Ten questions.<br><em>Five chances.</em></h1>
+          <p class="intro">Put your pharmacy knowledge to the test.<br class="desktop-break"> Keep Roo hopping, one answer at a time.</p>
+          <div class="rule-chips"><span><svg class="icon"><use href="#i-book"/></svg>10 items per round</span><span><svg class="icon"><use href="#i-heart"/></svg>5 mistakes = game over</span></div>
+          <form id="start-form" class="start-form">
+            <label for="topic-select">Choose your topic</label>
+            <div class="select-wrap"><select id="topic-select" name="topic"><option value="all">Mix it up · All topics</option></select><span aria-hidden="true">⌄</span></div>
+            <p id="pool-description" class="pool-description">90 questions in the pool · 10 picked each round</p>
+            <button class="button button-primary start-button" type="submit">Let’s play <svg class="icon"><use href="#i-arrow"/></svg></button>
+          </form>
+          <p class="quiet-note">No timer. Take a breath and think it through.</p>
+        </div>
+        <div class="home-visual"><div class="scene-slot" data-scene="home"></div><div class="visual-caption"><span class="caption-star">✦</span> A little recall. A little adventure.</div></div>
+      </section>
+      <section id="game-screen" class="game-screen" aria-labelledby="question-title" hidden>
+        <div class="game-toolbar"><span id="round-topic" class="eyebrow"></span><button id="quit-button" type="button" class="text-button">Leave round <svg class="icon leave-icon" aria-hidden="true"><use href="#i-arrow"/></svg></button></div>
+        <div class="game-grid">
+          <aside class="roo-panel" aria-label="Roo and remaining lives">
+            <div class="scene-slot" data-scene="game"></div>
+            <div id="lives" class="lives"></div>
+            <p id="lives-caption" class="lives-caption">5 lives left</p>
+            <p id="roo-message" class="roo-message">You’ve got this. Let’s hop to it!</p>
+            <div class="side-stats"><div><span id="correct-count">0</span> correct</div><div><span id="mistake-count">0</span> / 5 mistakes</div></div>
+          </aside>
+          <div class="question-card">
+            <div class="question-meta"><span id="question-counter">QUESTION 01 / 10</span><span id="question-topic" class="topic-tag"></span></div>
+            <div id="round-progress" class="round-progress" role="progressbar" aria-label="Items answered" aria-valuemin="0" aria-valuemax="10" aria-valuenow="0"></div>
+            <h2 id="question-title" tabindex="-1"></h2>
+            <div id="answers" class="answers" role="group" aria-labelledby="question-title"></div>
+            <div id="feedback" class="feedback" role="status" aria-live="polite" hidden></div>
+            <div class="question-bottom"><span id="keyboard-hint" class="keyboard-hint">Use <kbd>1</kbd>–<kbd>4</kbd> to answer</span><button id="next-button" type="button" class="button button-primary" hidden>Next question <svg class="icon"><use href="#i-arrow"/></svg></button></div>
+          </div>
+        </div>
+      </section>
+      <section id="result-screen" class="result-screen" aria-labelledby="result-title" hidden>
+        <div class="result-top">
+          <div class="result-copy"><span id="result-eyebrow" class="eyebrow">ROUND COMPLETE</span><h1 id="result-title" tabindex="-1"></h1><p id="result-subtitle" class="intro"></p><div class="result-actions"><button id="replay-button" class="button button-primary" type="button"><svg class="icon"><use href="#i-refresh"/></svg>Play again</button><button id="topics-button" class="button button-secondary" type="button">Change topic</button></div></div>
+          <div class="result-roo"><div class="scene-slot" data-scene="result"></div></div>
+        </div>
+        <div class="result-stats"><div><span id="result-score"></span><p>Score out of 10</p></div><div><span id="result-answered"></span><p>Items answered</p></div><div><span id="result-mistakes"></span><p>Mistakes out of 5</p></div></div>
+        <div class="review-heading"><div><span class="eyebrow">TAKE THE LEARNING WITH YOU</span><h2>Your round, reviewed.</h2></div><span id="review-count" class="topic-tag"></span></div>
+        <p id="last-answer" class="last-answer"></p>
+        <div id="review-list" class="review-list"></div>
+      </section>
+    </main>
+    <footer class="site-footer"><span>Small steps. Stronger recall.</span><span>Hangaroo-inspired · Made for learning</span></footer>
+  </div>
+  <dialog id="quit-dialog" aria-labelledby="quit-title"><form method="dialog"><span class="eyebrow">TAKE A PAUSE</span><h2 id="quit-title">Leave this round?</h2><p>Your current round will be cleared.</p><div class="dialog-actions"><button class="button button-secondary" value="cancel" autofocus>Keep playing</button><button class="button button-primary" value="leave">Leave round</button></div></form></dialog>
+  <template id="scene-template">
+    <div class="roo-scene" aria-hidden="true" data-mood="happy">
+      <span class="scene-badge">YOUR STUDY SIDEKICK</span>
+      <svg class="scene-svg" viewBox="0 0 440 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="220" cy="209" r="171" fill="#e2ebe0"/>
+        <circle cx="316" cy="105" r="20" fill="#f5c973"/>
+        <path d="M68 282c45-15 70-7 109 5 63 20 103-32 190-5" stroke="#c0d2bd" stroke-width="2" stroke-dasharray="5 8"/>
+        <path d="m74 142 8 8m-8 0 8-8M345 205l7 7m-7 0 7-7" stroke="#668d75" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="113" cy="92" r="4" fill="#d9a061"/><circle cx="352" cy="155" r="3" fill="#90ad95"/>
+        <path d="M104 333q-12-28-4-39 15 5 15 30m-8 9q10-31 24-30 4 17-17 31" fill="#8ba583"/>
+        <path d="M334 329q-4-28 8-35 11 10 2 30m-9 10q18-23 29-17-2 17-23 19" fill="#8ba583"/>
+        <ellipse class="roo-shadow" cx="224" cy="347" rx="94" ry="12" fill="#b7cbb4" opacity=".55"/>
+        <g class="roo-body">
+          <path d="M260 278c35 22 57 36 103 37-33 30-73 25-111-5" fill="#c98250" stroke="#885335" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M186 211c-17 27-28 74-17 104 11 30 77 28 92-1 12-24-9-86-27-104Z" fill="#dfa06b" stroke="#885335" stroke-width="3"/>
+          <path d="M200 236c-17 12-25 41-16 64 7 19 42 20 53 1 13-22-4-61-21-66" fill="#f7d5ac"/>
+          <path d="M185 280q26 18 51-1c-1 30-8 38-25 37-17-2-24-14-26-36Z" fill="#e9ba8b" stroke="#b8764d" stroke-width="2"/>
+          <path d="M182 306c-12 9-20 21-18 30 5 9 38 9 51 6 7-3 1-11-8-13l-1-16m28-8c8 11 11 20 7 28-3 7 9 11 28 9 16-2 16-9 3-14l-14-18" fill="#c98250" stroke="#885335" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M189 227c-15 6-27 18-29 28-1 11 13 12 17 1l15-12m41-18c14 3 24 13 24 23-1 10-13 9-16 1l-8-7" fill="#dfa06b" stroke="#885335" stroke-width="3" stroke-linecap="round"/>
+          <g class="roo-head">
+            <path d="M188 151c-27-31-32-70-18-85 16 4 27 46 29 78m18-1c2-40 16-78 31-79 14 20-2 61-19 89" fill="#dfa06b" stroke="#885335" stroke-width="3"/>
+            <path d="M183 127c-11-22-16-42-11-48 7 7 14 29 17 49m35-3c5-24 12-42 20-48 3 13-6 36-15 51" stroke="#eab5a1" stroke-width="7" stroke-linecap="round"/>
+            <path d="M167 176c1-28 24-42 47-40 29 1 43 24 39 48l-13 25c-10 18-37 23-53 7-24-1-33-18-25-31Z" fill="#e7ad77" stroke="#885335" stroke-width="3"/>
+            <path d="M189 183c-28-2-40 10-34 23 6 16 37 16 51 2" fill="#f7d5ac" stroke="#885335" stroke-width="3" stroke-linecap="round"/>
+            <ellipse cx="157" cy="190" rx="9" ry="6" fill="#514239" transform="rotate(-13 157 190)"/>
+            <g class="happy-eyes"><ellipse cx="196" cy="171" rx="4" ry="6" fill="#514239"/><ellipse cx="228" cy="173" rx="4" ry="6" fill="#514239"/><circle cx="197" cy="169" r="1.2" fill="white"/><circle cx="229" cy="171" r="1.2" fill="white"/></g>
+            <g class="sad-eyes" stroke="#514239" stroke-width="3" stroke-linecap="round"><path d="m190 171 10 3m23 0 10-3"/></g>
+            <path class="roo-smile" d="M177 204q10 7 18-1" stroke="#885335" stroke-width="2.5" stroke-linecap="round"/>
+            <ellipse cx="234" cy="192" rx="8" ry="5" fill="#d58474" opacity=".65"/>
+          </g>
+          <g class="roo-book"><path d="m174 251 30 6 25-7-1 36-26 8-29-8 1-35Z" fill="#28674e" stroke="#164f3b" stroke-width="2" stroke-linejoin="round"/><path d="m204 257-2 37m-23-31 17 4m-17 4 17 4m14-9 13-4m-13 12 13-4" stroke="#a6c2a2" stroke-width="2" stroke-linecap="round"/></g>
+        </g>
+        <path d="M131 365q84 12 174-1" stroke="#c0d2bd" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <div class="scene-speech">Let’s make it <strong>a good round.</strong></div>
+      <span class="scene-spark spark-one">✦</span><span class="scene-spark spark-two">✧</span>
+    </div>
+  </template>
+</body>
+</html>
